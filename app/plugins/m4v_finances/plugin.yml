@@ -1,0 +1,35 @@
+name: m4v_finances
+author: Unknown
+email: nobody@nowhere.com
+url: http://example.com
+version: '0.1'
+title: 'm4v_finances'
+icon: question
+# dependency on Core is required for UI plugins
+dependencies:
+    - !PluginDependency {
+        plugin_name: core
+    }
+    # - !OptionalPluginDependency {
+    #   plugin_name: my_other_plugin
+    # }
+    # - !ModuleDependency {
+    #   module_name: requests
+    # }
+    # - !BinaryDependency {
+    #   binary_name: curl
+    # }
+resources:
+    - 'resources/js/module.es'
+    - 'resources/js/routing.es'
+    - 'resources/js/controllers/accounts.index.controller.es'
+    - 'resources/js/controllers/bookings.index.controller.es'
+    - 'resources/js/controllers/projects.index.controller.es'
+    - 'resources/partial/accounts.index.html'
+    - 'resources/partial/addAccount.modal.html'
+    - 'resources/partial/bookings.index.html'
+    - 'resources/partial/addBooking.modal.html'
+    - 'resources/partial/importBooking.modal.html'
+    - 'resources/partial/projects.index.html'
+    - 'resources/partial/addProject.modal.html'
+    - 'ng:m4v.finances'

@@ -1,0 +1,33 @@
+<h1>{{my_title|translate}}</h1>
+<br/>
+<div>
+    <progress-spinner ng:show="accounts == null"></progress-spinner>
+    <div ng:show="accounts != null && accounts.length == 0">
+        <span translate>No accounts were found!</span>
+    </div>
+    <div ng:show="accounts != null && accounts.length != 0">
+        <table class="table">
+            <tr>
+                <th>ID</th>
+                <th translate>Name</th>
+                <th translate>Type</th>
+                <th translate>Total Amount</th>
+                <th></th>
+            </tr>
+            <tr ng:repeat="account in accounts">
+                <td style="height: 50px;vertical-align: middle;">{{account.id}}</td>
+                <td style="height: 50px;vertical-align: middle;">{{account.name}}</td>
+                <td style="height: 50px;vertical-align: middle;" ng:if="account.type == 'bank'">Bankkonto</td>
+                <td style="height: 50px;vertical-align: middle;" ng:if="account.type == 'cash'">Barkasse</td>
+                <td style="height: 50px;vertical-align: middle;">{{account.total_amount}}€</td>
+                <td style="height: 50px;vertical-align: middle;">
+                    <button type="button" class="btn btn-sm btn-success" ng:click="updateUser(user)" translate>Edit</button>
+                    <button type="button" class="btn btn-sm btn-danger" ng:click="deleteUser(user)" translate>Delete</button>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <floating-toolbar>
+        <button ng:click="addAccount()" class="btn btn-lmn" translate>Add account</button>
+    </floating-toolbar>
+</div>

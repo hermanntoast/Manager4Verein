@@ -1,0 +1,75 @@
+<h1>{{my_title|translate}}</h1>
+<br/>
+<div>
+    <progress-spinner ng:show="accounts == null"></progress-spinner>
+    <div ng:show="accounts != null && accounts.length == 0">
+        <span translate>No accounts were found!</span>
+    </div>
+    <div ng:show="accounts != null && accounts.length != 0">
+        <uib:tabset>
+            <uib:tab heading="{{account.name}}" ng:click="loadBookings(account.id, 0)" ng:repeat="account in accounts">
+                <div class="row" style="margin-top: 10px;margin-bottom: 10px;">
+                    <div class="col-md-10">
+                        <input type="text" class="form-control" placeholder="{{'Search'|translate}}">
+                    </div>
+                    <div class="col-md-2" style="margin-left: -15px;">
+                        <select class="form-control" ng:model="current_year" ng:change="loadBookings(account.id, 0, current_year)">
+                            <option ng:repeat="year in years" value="{{year.year}}">{{year.year}}</option>
+                        </select>
+                    </div>
+                </div>
+
+                <uib:tabset>
+                    <uib:tab heading="{{month.name}}" ng:click="loadBookings(account.id, month.id)" ng:repeat="month in months">
+                        <br />
+                        <progress-spinner ng:show="bookings == null"></progress-spinner>
+                        <div ng:show="bookings != null && bookings.length == 0">
+                            <br />
+                            <span translate>No bookings were found!</span>
+                        </div>
+                        <div ng:show="bookings != null && bookings.length != 0">
+                            <table class="table">
+                                <tr>
+                                    <th translate>Date</th>
+                                    <th translate>Name</th>
+                                    <th translate>Description</th>
+                                    <th style="width: 10%;" translate>Amount</th>
+                                    <th translate>Project</th>
+                                    <th></th>
+                                </tr>
+                                <tr ng:repeat="booking in bookings">
+                                    <td style="height: 50px;vertical-align: middle;">{{booking.booking_date_formatted}}</td>
+                                    <td style="height: 50px;vertical-align: middle;">{{booking.name}}</td>
+                                    <td style="height: 50px;vertical-align: middle;">{{booking.description}}</td>
+                                    <td style="height: 50px;vertical-align: middle;text-align:right;color:green;" ng:if="booking.amount >= 0">{{booking.amount_formatted}} €</td>
+                                    <td style="height: 50px;vertical-align: middle;text-align:right;color:red;" ng:if="booking.amount < 0">{{booking.amount_formatted}} €</td>
+                                    <td style="height: 50px;vertical-align: middle;">{{booking.project_name}}</td>
+                                    <td style="height: 50px;vertical-align: middle;text-align: right;">
+                                        <button type="button" class="btn btn-sm btn-success" ng:click="updateBooking(account.id, booking)" translate>Edit</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th style="color:green;text-align:right;" ng:if="bookings_totalamount >= 0">{{bookings_totalamount_formatted}} €</th>
+                                    <th style="color:red;text-align:right;" ng:if="bookings_totalamount < 0">{{bookings_totalamount_formatted}} €</th>
+                                    <th></th>
+                                    <th></th>
+                                </tr>
+                            </table>
+                            <br />
+                            <br />
+                            <br />
+                        </div>
+                    </uib:tab>
+                </uib:tabset>
+                
+                <floating-toolbar>
+                    <button ng:click="addBooking(account.id)" class="btn" translate>Add booking</button>
+                    <button ng:click="importBooking(account.id)" class="btn" translate>Import booking(s)</button>
+                </floating-toolbar>
+            </uib:tab>
+        </uib:tabset>
+    </div>
+</div>

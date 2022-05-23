@@ -1,0 +1,107 @@
+<div class="modal-header">
+    <h4>Import booking(s)</h4>
+</div>
+
+<div class="modal-body">
+    <uib:tabset active="tab_active">
+            <uib:tab index="1" heading="{{tabs.upload.title}}" disable="tabs.upload.disabled">
+                <br>
+                <div class="alert alert-danger" role="alert" ng:if="error" translate>
+                    Please select file and press 'Load data'!
+                </div>
+                <csv-file-uploader uploaded="saveEntries(data)"></csv-file-uploader>
+                <div class="alert alert-info" role="alert" ng:if="csvdata" translate>
+                    Found {{csvdata.length}} entries in CSV!
+                </div>
+            </uib:tab>
+            <uib:tab index="2" heading="{{tabs.select.title}}" ng:click="loadSelectTab()" disable="tabs.select.disabled">
+                <progress-spinner ng:show="csvdata == null"></progress-spinner>
+                <table class="table">
+                    <tr>
+                        <th></th>
+                        <th><input type="checkbox" ng:click="toggleSelection()" /></th>
+                        <th translate>Date</th>
+                        <th translate>Name</th>
+                        <th translate>Description</th>
+                        <th translate>IBAN</th>
+                        <th style="width: 15%;" translate>Amount</th>
+                    </tr>
+                    <tr ng:repeat="data in csvdata">
+                        <td style="height: 50px;vertical-align: middle;"><i ng:if="data.exist" class="fa fa-close" style="color:red;"></i><i ng:if="!data.exist" class="fa fa-check" style="color:green;"></i></td>
+                        <td style="height: 50px;vertical-align: middle;"><input type="checkbox" ng:if="!data.disabled" ng:model="data.selected"/><input type="checkbox" ng:if="data.disabled" ng:model="data.selected" disabled/></td>
+                        <td style="height: 50px;vertical-align: middle;">{{data.buchungstag}}</td>
+                        <td style="height: 50px;vertical-align: middle;">{{data.beguenstigterzahlungspflichtiger}}</td>
+                        <td style="height: 50px;vertical-align: middle;">{{data.verwendungszweck}}</td>
+                        <td style="height: 50px;vertical-align: middle;">{{data.kontonummeriban}}</td>
+                        <td style="height: 50px;vertical-align: middle;text-align:right;color:green;" ng:if="data.betrag >= 0">{{data.betrag_formatted}} €</td>
+                        <td style="height: 50px;vertical-align: middle;text-align:right;color:red;" ng:if="data.betrag < 0">{{data.betrag_formatted}} €</td>
+                    </tr>
+                </table>
+            </uib:tab>
+            <uib:tab index="3" heading="{{tabs.import.title}}" ng:click="loadImportTab()" disable="tabs.import.disabled">
+                <progress-spinner ng:show="selectedData == null"></progress-spinner>
+                <br>
+                <div ng:if="!startImport">
+                    <div class="alert alert-info" role="alert" ng:if="selectedData.length > 0" translate>
+                        You select {{selectedData.length}} entries. Press import to import them!
+                    </div>
+                    <div class="form-group">
+                        <label for="account" translate>Account</label>
+                        <select ng:model="account" class="form-control" id="account">
+                            <option ng:repeat="account in accounts" value="{{account.id}}">{{account.name}}</option>
+                        </select>
+                    </div>
+                    <table class="table" ng:if="selectedData.length > 0">
+                        <tr>
+                            <th style="width: 10%;" translate>Date</th>
+                            <th translate>Name</th>
+                            <th translate>Description</th>
+                            <th style="width: 10%;" translate>Amount</th>
+                            <th style="width: 20%;" translate>Project</th>
+                            <th style="width: 20%;" translate>Tax-Zone</th>
+                        </tr>
+                        <tr ng:repeat="data in selectedData">
+                            <td style="height: 50px;vertical-align: middle;">{{data.buchungstag}}</td>
+                            <td style="height: 50px;vertical-align: middle;">
+                                <input type="text" ng:model="data.beguenstigterzahlungspflichtiger" class="form-control" />
+                            </td>
+                            <td style="height: 50px;vertical-align: middle;">
+                                <textarea class="form-control" rows="2" style="resize:vertical" ng:model="data.verwendungszweck"></textarea>
+                            </td>
+                            <td style="height: 50px;vertical-align: middle;text-align:right;color:green;" ng:if="data.betrag >= 0">{{data.betrag_formatted}} €</td>
+                            <td style="height: 50px;vertical-align: middle;text-align:right;color:red;" ng:if="data.betrag < 0">{{data.betrag_formatted}} €</td>
+                            <td style="height: 50px;vertical-align: middle;">
+                                <select ng:model="data.project" class="form-control" id="data.project">
+                                    <option value="0">- no project -</option>
+                                    <option ng:repeat="project in projects" value="{{project.id}}">{{project.name}}</option>
+                                </select>
+                            </td>
+                            <td style="height: 50px;vertical-align: middle;">
+                                <select ng:model="data.tax_zone" class="form-control" id="data.tax_zone">
+                                    <option value="0">- no tax zone -</option>
+                                    <option ng:repeat="tax_zone in tax_zones" value="{{tax_zone.id}}">{{tax_zone.name}}</option>
+                                </select>
+                            </td>
+                        </tr>
+                    </table>
+                    <div class="alert alert-info" role="alert" ng:if="selectedData.length <= 0" translate>
+                        No entrys selected!
+                    </div>
+                </div>
+                <div ng:if="startImport">
+                    <uib-progressbar class="progress" max="bookingscounter" value="importcounter">{{importcounter}} / {{bookingscounter}}</uib-progressbar></div>
+                    <div ng:if="importfinished" translate>
+                        Import finished sucessfully with {{errorcount}} errors!
+                    </div>
+                </div>
+            </uib:tab>
+    </uib:tabset>
+</div>
+
+<div class="modal-footer">
+    <button class="btn btn-danger" ng:click="close()" ng:if="!startImport" translate>Close</button>
+    <button class="btn btn-success" ng:click="back()" ng:if="tab_active == 2 || tab_active == 3 && !startImport" translate>Back</button>
+    <button class="btn btn-success" ng:click="next()" ng:if="tab_active == 1 || tab_active == 2" translate>Next</button>
+    <button class="btn btn-success" ng:click="import()" ng:if="tab_active == 3 && !startImport" translate>Import</button>
+    <button class="btn btn-success" ng:click="finish()" ng:if="startImport" translate>Finish</button>
+</div>

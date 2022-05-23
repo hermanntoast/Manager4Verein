@@ -1,0 +1,30 @@
+<h1>{{my_title|translate}}</h1>
+<br/>
+<div>
+    <progress-spinner ng:show="projects == null"></progress-spinner>
+    <div ng:show="projects != null && projects.length == 0">
+        <span translate>No projects were found!</span>
+    </div>
+    <div ng:show="projects != null && projects.length != 0">
+        <table class="table">
+            <tr>
+                <th>ID</th>
+                <th translate>Name</th>
+                <th translate>Description</th>
+                <th></th>
+            </tr>
+            <tr ng:repeat="project in projects">
+                <td style="height: 50px;vertical-align: middle;">{{project.id}}</td>
+                <td style="height: 50px;vertical-align: middle;">{{project.name}}</td>
+                <td style="height: 50px;vertical-align: middle;">{{project.description}}</td>
+                <td style="height: 50px;vertical-align: middle;">
+                    <button type="button" class="btn btn-sm btn-success" ng:click="updateProject(project)" translate>Edit</button>
+                    <button type="button" class="btn btn-sm btn-danger" ng:click="deleteProject(project)" translate>Delete</button>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <floating-toolbar>
+        <button ng:click="addProject()" class="btn btn-lmn" translate>Add project</button>
+    </floating-toolbar>
+</div>

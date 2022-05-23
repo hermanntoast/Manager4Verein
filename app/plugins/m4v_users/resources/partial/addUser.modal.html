@@ -1,0 +1,25 @@
+<div class="modal-header">
+    <h4>Add user - {{user.username}}</h4>
+</div>
+
+<div class="modal-body">
+    <label>Username</label>
+    <input ng:model="user.username" type="text" class="form-control"/>
+
+    <label>Firstname</label>
+    <input ng:model="user.firstname" type="text" class="form-control"/>
+
+    <label>Lastname</label>
+    <input ng:model="user.lastname" type="text" class="form-control"/>
+
+    <label>E-Mail</label>
+    <input ng:model="user.mail" type="text" class="form-control"/>
+
+    <label>Password</label>
+    <input ng:model="user.password" type="password" class="form-control"/>
+</div>
+
+<div class="modal-footer">
+    <button class="btn btn-danger" ng:click="close()">Close</button>
+    <button class="btn btn-success" ng:click="save()">Save</button>
+</div>

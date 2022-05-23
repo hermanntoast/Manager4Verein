@@ -1,0 +1,19 @@
+.card {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #dddddd;
+  border-radius: 3px;
+}
+.card-head {
+  background-color: #dddddd;
+  height: 35px;
+  font-size: large;
+  padding: 5px;
+}
+.card-body {
+  padding: 10px;
+}
+.modal-lg {
+  width: 90%;
+}
+

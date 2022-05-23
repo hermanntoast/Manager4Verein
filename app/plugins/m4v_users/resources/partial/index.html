@@ -1,0 +1,35 @@
+<h1>{{my_title|translate}}</h1>
+<br/>
+<div>
+    <progress-spinner ng:show="userlist == null"></progress-spinner>
+    <div ng:show="userlist != null && userlist.length == 0">
+        <span translate>No users were found!</span>
+    </div>
+    <div ng:show="userlist != null && userlist.length != 0">
+        <table class="table">
+            <tr>
+                <th>ID</th>
+                <th translate>Username</th>
+                <th translate>Firstname</th>
+                <th translate>Lastname</th>
+                <th translate>E-Mail</th>
+                <th translate>Role</th>
+                <th></th>
+            </tr>
+            <tr ng:repeat="user in userlist">
+                <td style="height: 50px;vertical-align: middle;">{{user.id}}</td>
+                <td style="height: 50px;vertical-align: middle;">{{user.username}}</td>
+                <td style="height: 50px;vertical-align: middle;">{{user.firstname}}</td>
+                <td style="height: 50px;vertical-align: middle;">{{user.lastname}}</td>
+                <td style="height: 50px;vertical-align: middle;">{{user.mail}}</td>
+                <td style="height: 50px;vertical-align: middle;">
+                    <button type="button" class="btn btn-sm btn-success" ng:click="updateUser(user)" translate>Edit</button>
+                    <button type="button" class="btn btn-sm btn-danger" ng:click="deleteUser(user)" translate>Delete</button>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <floating-toolbar>
+        <button ng:click="addUser()" class="btn btn-lmn" translate>Add user</button>
+    </floating-toolbar>
+</div>

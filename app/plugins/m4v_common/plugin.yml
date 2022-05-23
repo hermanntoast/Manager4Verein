@@ -1,0 +1,20 @@
+name: m4v_common
+author: hermanntoast
+email: dev@hermann-toast.de
+url: https://hermann-toast.de
+version: '1.0'
+title: 'm4v_common'
+icon: question
+dependencies:
+    - !PluginDependency {
+        plugin_name: core
+    }
+resources:
+    - 'resources/js/module.es'
+    - 'resources/js/routing.es'
+    - 'resources/js/controllers/index.controller.es'
+    - 'resources/js/directives/csvupload.directive.es'
+    - 'resources/js/directives/attachmentupload.directive.es'
+    - 'resources/partial/index.html'
+    - 'resources/style.less'
+    - 'ng:m4v.common'

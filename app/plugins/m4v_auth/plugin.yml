@@ -1,0 +1,20 @@
+name: m4v_auth
+author: hermanntoast
+email: dev@hermann-toast.de
+url: https://hermann-toast.de
+version: '1.0'
+title: 'm4v_auth'
+icon: question
+dependencies:
+    - !PluginDependency {
+        plugin_name: core
+    }
+    - !PluginDependency {
+        plugin_name: m4v_common
+    }
+resources:
+    - 'resources/js/module.es'
+    - 'resources/js/routing.es'
+    - 'resources/js/controllers/index.controller.es'
+    - 'resources/partial/index.html'
+    - 'ng:m4v.auth'

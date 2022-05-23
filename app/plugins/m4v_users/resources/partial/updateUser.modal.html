@@ -1,0 +1,31 @@
+<div class="modal-header">
+    <h4>Edit user - {{user.username}}</h4>
+</div>
+
+<div class="modal-body">
+    <label>Username</label>
+    <input ng:model="user.username" type="text" class="form-control" disabled/>
+
+    <label>Firstname</label>
+    <input ng:model="user.firstname" type="text" class="form-control"/>
+
+    <label>Lastname</label>
+    <input ng:model="user.lastname" type="text" class="form-control"/>
+
+    <label>E-Mail</label>
+    <input ng:model="user.mail" type="text" class="form-control"/>
+
+    <label>Password</label>
+    <input ng:model="user.password" type="password" class="form-control"/>
+    <div class="form-check">
+        <input class="form-check-input" type="checkbox" ng:model="updatepw" name="updatepw">
+        <label class="form-check-label" for="updatepw">
+            Update Password?
+        </label>
+    </div>
+</div>
+
+<div class="modal-footer">
+    <button class="btn btn-danger" ng:click="close()">Close</button>
+    <button class="btn btn-success" ng:click="save()">Save</button>
+</div>

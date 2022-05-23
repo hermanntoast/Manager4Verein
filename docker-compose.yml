@@ -1,0 +1,45 @@
+version: "3.5"
+services:
+    toastmanager:
+        build: ./build/manager4verein-webui/
+        container_name: manager4verein_webui
+        ports:
+            - "8081:8000"
+        links:
+            - manager4verein_db:mysql
+        depends_on:
+            - manager4verein_db
+        environment:
+            - ROOT_PASSWORD=Muster!
+            - DEV_MODE=1
+            - SERVER_NAME=manager.kjg-pfaffenweiler.de
+            - TIMEZONE=Europe/Berlin
+            - SERVER_COLOR=blue
+            - SERVER_PORT=8000
+            - MYSQL_HOST=manager4verein_db
+            - MYSQL_USER=root
+            - MYSQL_PASSWORD=Muster!
+            - MYSQL_DATABASE=manager4verein
+        volumes:
+            - ./app:/opt/app/
+
+    manager4verein_db:
+        image: mariadb:latest
+        container_name: manager4verein_db
+        environment:
+            - MYSQL_ROOT_PASSWORD=Muster!
+            - MYSQL_DATABASE=manager4verein
+        volumes:
+            - ./data/database:/var/lib/mysql
+
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin:latest
+        links:
+            - manager4verein_db:mysql
+        depends_on:
+          - manager4verein_db
+        ports:
+          - '7777:80'
+        environment:
+          PMA_HOST: manager4verein_db
+          MYSQL_ROOT_PASSWORD: Muster!

@@ -1,0 +1,29 @@
+name: m4v_users
+author: Unknown
+email: nobody@nowhere.com
+url: http://example.com
+version: '0.1'
+title: 'm4v_users'
+icon: question
+# dependency on Core is required for UI plugins
+dependencies:
+    - !PluginDependency {
+        plugin_name: core
+    }
+    # - !OptionalPluginDependency {
+    #   plugin_name: my_other_plugin
+    # }
+    # - !ModuleDependency {
+    #   module_name: requests
+    # }
+    # - !BinaryDependency {
+    #   binary_name: curl
+    # }
+resources:
+    - 'resources/js/module.es'
+    - 'resources/js/routing.es'
+    - 'resources/js/controllers/index.controller.es'
+    - 'resources/partial/index.html'
+    - 'resources/partial/updateUser.modal.html'
+    - 'resources/partial/addUser.modal.html'
+    - 'ng:m4v.users'

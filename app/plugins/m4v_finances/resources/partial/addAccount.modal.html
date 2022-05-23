@@ -1,0 +1,22 @@
+<div class="modal-header">
+    <h4>Add account - {{account.name}}</h4>
+</div>
+
+<div class="modal-body">
+    <label>Name</label>
+    <input ng:model="account.name" type="text" class="form-control"/>
+
+    <label>Description</label>
+    <input ng:model="account.description" type="text" class="form-control"/>
+
+    <label>Type</label>
+    <select ng:model="account.type" class="form-control">
+      <option value="bank">Bankkonto</option>
+      <option value="cash">Barkasse</option>
+    </select>
+</div>
+
+<div class="modal-footer">
+    <button class="btn btn-danger" ng:click="close()">Close</button>
+    <button class="btn btn-success" ng:click="save()">Save</button>
+</div>
