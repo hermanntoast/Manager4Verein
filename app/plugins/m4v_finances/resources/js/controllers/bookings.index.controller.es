@@ -61,7 +61,9 @@ angular.module('m4v.finances').controller('M4v_financesBookingsIndexController',
     $scope.loadAccounts = () => {
         $http.get('/api/m4v/finances/accounts').then( (resp) => {
             $scope.accounts = resp.data;
-            $scope.loadBookings($scope.accounts[0].id, 0);
+            if($scope.accounts.length > 0) {
+                $scope.loadBookings($scope.accounts[0].id, 0);
+            }
         });
     }
 
@@ -100,7 +102,9 @@ angular.module('m4v.finances').controller('M4v_financesBookingsIndexController',
             size: 'lg',
             resolve: { account: function() { return account; }, booking: function() { return false; } }
         }).result.then(function(booking) {
+            console.log(booking);
             $http.post('/api/m4v/finances/bookings/add', {
+                booking_date: booking.booking_date,
                 name: booking.name, 
                 description: booking.description, 
                 amount: booking.amount, 
@@ -110,7 +114,9 @@ angular.module('m4v.finances').controller('M4v_financesBookingsIndexController',
                 invoice_image: booking.invoice_image, 
                 created_by: $scope.identity.user
             }).then( (resp) => {
+                console.log(resp.data);
                 notify.success(gettext('Saved successfully!'));
+                $scope.loadYears();
                 $scope.loadBookings(account, $scope.current_month);
             }, error => {
                 notify.error(gettext('Failed to save!'));
@@ -126,12 +132,38 @@ angular.module('m4v.finances').controller('M4v_financesBookingsIndexController',
             size: 'lg',
             resolve: { account: function() { return account; }, booking: function() { return booking; } }
         }).result.then(function(booking) {
-            $http.post('/api/m4v/finances/bookings/update', {id: booking.id, name: booking.name, description: booking.description, amount: booking.amount, account: booking.account, project: booking.project, tax_zone: booking.tax_zone, invoice_image: booking.invoice_image, updated_by: $scope.identity.user}).then( (resp) => {
-                notify.success(gettext('Saved successfully!'));
-                $scope.loadBookings(account, $scope.current_month);
-            }, error => {
-                notify.error(gettext('Failed to save!'));
-            });
+            if(booking.action == "update") {
+                $http.post('/api/m4v/finances/bookings/update', {
+                    id: booking.id, 
+                    booking_date: booking.booking_date, 
+                    name: booking.name, 
+                    description: booking.description, 
+                    amount: booking.amount, 
+                    account: booking.account, 
+                    project: booking.project, 
+                    tax_zone: booking.tax_zone, 
+                    invoice_image: booking.invoice_image, 
+                    updated_by: $scope.identity.user
+                }).then( (resp) => {
+                    notify.success(gettext('Saved successfully!'));
+                    $scope.loadBookings(account, $scope.current_month);
+                }, error => {
+                    notify.error(gettext('Failed to save!'));
+                });
+            }
+            else if(booking.action == "delete") {
+                messagebox.show({
+                    text: gettext("Are you sure you want to delete '" + booking.name + "'?"),
+                    positive: gettext('Delete'),
+                    negative: gettext('Cancel')
+                }).then(() => {
+                    $http.post('/api/m4v/finances/bookings/delete', { id: booking.id }).then( (resp) => {
+                        notify.success(gettext('Deleted successfully!'));
+                    });
+                    $scope.loadBookings(account, $scope.current_month);
+                });
+            }
+            
         });
     }
 
@@ -148,12 +180,24 @@ angular.module('m4v.finances').controller('M4v_financesBookingsIndexController',
         });
     }
 
+    $scope.filter = (row) => {
+        result = false;
+        console.log(row);
+        for (var value of ['name', 'description']) {
+            if (row[value] != undefined) {
+                result = result || row[value].toLowerCase().indexOf($scope.query.toLowerCase() || '') != -1;
+            }
+        }
+        return result;
+    }
+
     $scope.$watch('identity.user', function() {
         if ($scope.identity.user == undefined) { return; }
         if ($scope.identity.user == null) { return; }
 
         $scope.profile = $scope.identity.profile;
         $scope.current_year = String(new Date().getFullYear());
+        $scope.query = "";
         $scope.loadYears();
         $scope.loadAccounts();
     });
@@ -162,12 +206,17 @@ angular.module('m4v.finances').controller('M4v_financesBookingsIndexController',
 
 angular.module('m4v.finances').controller('M4VAddBookingModalController', function($scope, $uibModalInstance, $http, account, booking) {
     $scope.save = () => {
-        console.log($scope.booking);
+        $scope.booking.action = "update";
         $uibModalInstance.close($scope.booking);
     }
 
     $scope.close = () => {
         $uibModalInstance.dismiss();
+    }
+
+    $scope.delete = () => {
+        $scope.booking.action = "delete";
+        $uibModalInstance.close($scope.booking);
     }
 
     $scope.loadProjects = () => {
@@ -210,16 +259,19 @@ angular.module('m4v.finances').controller('M4VAddBookingModalController', functi
 
     if (!booking) {
         $scope.booking = {};
+        $scope.booking.booking_date = "";
         $scope.booking.name = "";
         $scope.booking.description = "";
         $scope.booking.amount = 0;
         $scope.booking.account = account;
-        $scope.booking.project = "";
-        $scope.booking.tax_zone = "";
+        $scope.booking.project = 0;
+        $scope.booking.tax_zone = 0;
         $scope.booking.attachments = [];
+        $scope.newbooking = true;
     }
     else {
         $scope.booking = booking;
+        $scope.newbooking = false;
         $scope.booking.amount = Number($scope.booking.amount);
         $scope.loadAttachments($scope.booking.attachments);
     }

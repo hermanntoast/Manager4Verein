@@ -25,6 +25,7 @@ resources:
     - 'resources/js/controllers/accounts.index.controller.es'
     - 'resources/js/controllers/bookings.index.controller.es'
     - 'resources/js/controllers/projects.index.controller.es'
+    - 'resources/js/controllers/evaluation.index.controller.es'
     - 'resources/partial/accounts.index.html'
     - 'resources/partial/addAccount.modal.html'
     - 'resources/partial/bookings.index.html'
@@ -32,4 +33,5 @@ resources:
     - 'resources/partial/importBooking.modal.html'
     - 'resources/partial/projects.index.html'
     - 'resources/partial/addProject.modal.html'
+    - 'resources/partial/evaluation.index.html'
     - 'ng:m4v.finances'

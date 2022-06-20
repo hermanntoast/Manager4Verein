@@ -1,0 +1,79 @@
+<h1>{{my_title|translate}}</h1>
+<br/>
+<div>
+    <uib:tabset>
+            <uib:tab heading="nach Projekten" ng:click="">
+                <progress-spinner ng:show="projects == null"></progress-spinner>
+                <div ng:show="projects != null && projects.length == 0">
+                    <span translate>No projects were found!</span>
+                </div>
+                <div ng:show="projects != null && projects.length != 0">
+                    <br>
+                    <div class="row">
+                        <div class="form-group col-md-4">
+                            <label for="selected_project" translate>Project</label>
+                            <select ng:model="selected_project" class="form-control" id="selected_project">
+                                <option ng:repeat="project in projects" value="{{project.id}}">{{project.name}}</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label for="selected_date_from" translate>Date from</label>
+                            <input type="text" ng:model="selected_date_from" class="form-control" placeholder="YYYY-MM-DD">
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label for="selected_date_to" translate>Date to</label>
+                            <input type="text" ng:model="selected_date_to" class="form-control" placeholder="YYYY-MM-DD">
+                        </div>
+                        <div class="form-group col-md-2">
+                            <button class="btn" ng:click="loadEvaluation(selected_project, selected_date_from, selected_date_to)" style="margin-top:25px;width:100%" translate>Load</button>
+                        </div>
+                    </div>
+                    <br>
+                    <div ng:show="project_evaluation != null && project_evaluation != 0">
+                        <table class="table">
+                            <tr>
+                                <th translate>Total</th>
+                                <td style="text-align:right;color:green;" ng:if="project_evaluation.total_amount >= 0">{{project_evaluation.total_amount_formatted}} €</td>
+                                <td style="text-align:right;color:red;" ng:if="project_evaluation.total_amount < 0">{{project_evaluation.total_amount_formatted}} €</td>
+                            </tr>
+                            <tr>
+                                <th translate>Total minus</th>
+                                <td style="text-align:right;color:green;" ng:if="project_evaluation.total_amount_minus >= 0">{{project_evaluation.total_amount_minus_formatted}} €</td>
+                                <td style="text-align:right;color:red;" ng:if="project_evaluation.total_amount_minus < 0">{{project_evaluation.total_amount_minus_formatted}} €</td>
+            
+                            </tr>
+                            <tr>
+                                <th translate>Total plus</th>
+                                <td style="text-align:right;color:green;" ng:if="project_evaluation.total_amount_plus >= 0">{{project_evaluation.total_amount_plus_formatted}} €</td>
+                                <td style="text-align:right;color:red;" ng:if="project_evaluation.total_amount_plus < 0">{{project_evaluation.total_amount_plus_formatted}} €</td>
+                                
+                            </tr>
+                        </table>
+                        <table class="table">
+                            <tr>
+                                <th translate>Date</th>
+                                <th translate>Name</th>
+                                <th translate>Description</th>
+                                <th style="width: 15%;" translate>Amount</th>
+                            </tr>
+                            <tr ng:repeat="entry in project_evaluation.data">
+                                <td>{{entry.booking_date}}</td>
+                                <td>{{entry.name}}</td>
+                                <td>{{entry.description}}</td>
+                                <td style="text-align:right;color:green;" ng:if="entry.amount >= 0">{{entry.amount_formatted}} €</td>
+                                <td style="text-align:right;color:red;" ng:if="entry.amount < 0">{{entry.amount_formatted}} €</td>
+                            </tr>
+                        </table>
+                        <br />
+                        <br />
+                        <br />
+                    </div>
+                </div>
+            </uib:tab>
+    </uib:tabset>
+</div>
+
+<floating-toolbar>
+    <button ng:click="" class="btn" translate>Exportieren</button>
+    <button ng:click="" class="btn" translate>Drucken</button>
+</floating-toolbar>

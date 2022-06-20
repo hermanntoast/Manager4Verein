@@ -11,4 +11,8 @@ angular.module('m4v.finances').config(($routeProvider) => {
         templateUrl: '/m4v_finances:resources/partial/projects.index.html',
         controller: 'M4v_financesProjectsIndexController',
     });
+    $routeProvider.when('/view/m4v/finances/evaluation', {
+        templateUrl: '/m4v_finances:resources/partial/evaluation.index.html',
+        controller: 'M4v_financesEvaluationIndexController',
+    });
 });

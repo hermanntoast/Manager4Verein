@@ -26,8 +26,14 @@ class MySQLConnector:
         for field in fields:
             field_string += field + ","
         field_string = field_string[:-1]
-        cursor.execute("SELECT " + field_string + " FROM " + table + " " + append)
-        query_results = cursor.fetchall()
+        query = "SELECT " + field_string + " FROM " + table + " " + append
+        try:
+            cursor.execute(query)
+            query_results = cursor.fetchall()
+        except Exception as e:
+            print("====> Query was: " + query)
+            print(e)
+            return False
         result = []
         for query_result in query_results:
             tmp = {}

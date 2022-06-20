@@ -19,10 +19,15 @@ cat << EOF > /opt/app/config/config.json
 }
 EOF
 
+if [ $(mysql -u root -p${ROOT_PASSWORD} ${MYSQL_DATABASE} -e "show tables;" | wc -l) -le 3 ]; then
+    echo "This seems to be the first start. Create sql database and structure first!"
+    mysql -u root -p${ROOT_PASSWORD} ${MYSQL_DATABASE} < /root/m4v-sqltemplate.sql
+fi
+
 if [ $DEV_MODE == 1 ]
 then
     echo "Starting in development-mode...!"
-    echo "===> Run 'docker exec -it -w /opt/app/plugins manager4verein_webui ajenti-dev-multitool --run-dev'"
+    echo "===> Run 'docker exec -it -w /opt/app/plugins manager4verein_webui_dev ajenti-dev-multitool --run-dev'"
     tail -f /var/log/faillog
 else
     ajenti-panel -d --stock-plugins --plugins /opt/app/plugins -v

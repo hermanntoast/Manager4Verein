@@ -54,7 +54,18 @@ class Handler(HttpPlugin):
     def handle_api_m4v_finances_accounts_delete(self, http_context):
         if http_context.method == 'POST':
             id = http_context.json_body()['id']
-            mysql_result = self.mysql.delete("m4v_accounts", "id = " + id)
+            mysql_result = self.mysql.delete("m4v_accounts", "id = " + str(id))
+            return mysql_result
+
+    @url(r'/api/m4v/finances/accounts/calc')
+    @endpoint(api=True)
+    def handle_api_m4v_finances_accounts_calc(self, http_context):
+        if http_context.method == 'POST':
+            id = http_context.json_body()['id']
+            mysql_result = self.mysql.get("m4v_bookings", ["SUM(amount) AS account_total"], "WHERE account = " + str(id))
+            if "None" in mysql_result[0]["account_total"]:
+                mysql_result[0]["account_total"] = "0.0"
+            self.mysql.update("m4v_accounts", {"total_amount": mysql_result[0]["account_total"], "updated_by": "SYSTEM", "updated_at": "NOW()"}, "id = " + str(id))
             return mysql_result
 
     ############### PROJECTS ###############
@@ -100,7 +111,7 @@ class Handler(HttpPlugin):
     def handle_api_m4v_finances_projects_delete(self, http_context):
         if http_context.method == 'POST':
             id = http_context.json_body()['id']
-            mysql_result = self.mysql.delete("m4v_projects", "id = " + id)
+            mysql_result = self.mysql.delete("m4v_projects", "id = " + str(id))
             return mysql_result
 
     ############### TAXZONES ###############
@@ -130,10 +141,12 @@ class Handler(HttpPlugin):
             month = http_context.json_body()['month']
             year = http_context.json_body()['year']
             monthfilter = ""
+            yearfilter = ""
             if month > 0:
                 monthfilter = " AND MONTH(booking_date) = " + str(month)
-            yearfilter = " AND YEAR(booking_date) = " + str(year)
-            mysql_result = self.mysql.get("m4v_bookings AS b", ["b.id", "b.name", "b.description", "DATE_FORMAT(booking_date, '%d.%m.%Y') AS booking_date_formatted", "b.amount", "FORMAT(b.amount, 2) AS amount_formatted", "b.account", "b.project", "p.name AS project_name", "b.tax_zone", "b.invoice_image", "b.created_by", "b.created_at"], "LEFT JOIN `m4v_projects` AS p ON p.id = b.project WHERE account = " + account + monthfilter + yearfilter + " ORDER BY booking_date")
+            if int(year) > 0:
+                yearfilter = " AND YEAR(booking_date) = " + str(year)
+            mysql_result = self.mysql.get("m4v_bookings AS b", ["b.id", "b.name", "b.description", "DATE_FORMAT(booking_date, '%Y-%m-%d') AS booking_date", "DATE_FORMAT(booking_date, '%d.%m.%Y') AS booking_date_formatted", "b.amount", "FORMAT(b.amount, 2) AS amount_formatted", "b.account", "b.project", "p.name AS project_name", "b.tax_zone", "b.invoice_image", "b.created_by", "b.created_at"], "LEFT JOIN `m4v_projects` AS p ON p.id = b.project WHERE account = " + account + monthfilter + yearfilter + " ORDER BY booking_date")
             return mysql_result
 
     @url(r'/api/m4v/finances/bookings/add')
@@ -146,11 +159,19 @@ class Handler(HttpPlugin):
             account = http_context.json_body()['account']
             project = http_context.json_body()['project']
             tax_zone = http_context.json_body()['tax_zone']
-            invoice_image = http_context.json_body()['invoice_image']
+            if 'invoice_image' in http_context.json_body():
+                invoice_image = http_context.json_body()['invoice_image']
+            else:
+                invoice_image = ""
             created_by = http_context.json_body()['created_by']
             if 'booking_date' in http_context.json_body():
                 try:
-                    booking_date = datetime.strptime(http_context.json_body()['booking_date'], '%d.%m.%y').strftime('%Y-%m-%d %H:%M:%S')
+                    if "." in http_context.json_body()['booking_date']:
+                        booking_date = datetime.strptime(http_context.json_body()['booking_date'], '%d.%m.%y').strftime('%Y-%m-%d %H:%M:%S')
+                    elif "-" in http_context.json_body()['booking_date']:
+                        booking_date = datetime.strptime(http_context.json_body()['booking_date'], '%Y-%m-%d').strftime('%Y-%m-%d %H:%M:%S')
+                    else:
+                        booking_date = "NOW()"
                 except:
                     booking_date = "NOW()"
             else:
@@ -205,7 +226,21 @@ class Handler(HttpPlugin):
             tax_zone = http_context.json_body()['tax_zone']
             invoice_image = http_context.json_body()['invoice_image']
             updated_by = http_context.json_body()['updated_by']
-            mysql_result = self.mysql.update("m4v_bookings", {"name": name, "description": description, "amount": amount, "account": account, "project": project, "tax_zone": tax_zone, "invoice_image": invoice_image, "updated_by": updated_by, "updated_at": "NOW()"}, "id = " + str(id))
+
+            if 'booking_date' in http_context.json_body():
+                try:
+                    if "." in http_context.json_body()['booking_date']:
+                        booking_date = datetime.strptime(http_context.json_body()['booking_date'], '%d.%m.%y').strftime('%Y-%m-%d %H:%M:%S')
+                    elif "-" in http_context.json_body()['booking_date']:
+                        booking_date = datetime.strptime(http_context.json_body()['booking_date'], '%Y-%m-%d').strftime('%Y-%m-%d %H:%M:%S')
+                    else:
+                        booking_date = "NOW()"
+                except:
+                    booking_date = "NOW()"
+            else:
+                booking_date = "NOW()"
+
+            mysql_result = self.mysql.update("m4v_bookings", {"name": name, "booking_date": booking_date, "description": description, "amount": amount, "account": account, "project": project, "tax_zone": tax_zone, "invoice_image": invoice_image, "updated_by": updated_by, "updated_at": "NOW()"}, "id = " + str(id))
             return mysql_result
 
     @url(r'/api/m4v/finances/bookings/delete')
@@ -213,7 +248,7 @@ class Handler(HttpPlugin):
     def handle_api_m4v_finances_bookings_delete(self, http_context):
         if http_context.method == 'POST':
             id = http_context.json_body()['id']
-            mysql_result = self.mysql.delete("m4v_bookings", "id = " + id)
+            mysql_result = self.mysql.delete("m4v_bookings", "id = " + str(id))
             return mysql_result
 
     @url(r'/api/m4v/finances/bookings/years')
@@ -243,3 +278,36 @@ class Handler(HttpPlugin):
             if len(mysql_result) > 0:
                 return True
             return False
+
+    @url(r'/api/m4v/finances/bookings/count')
+    @endpoint(api=True)
+    def handle_api_m4v_finances_bookings_count(self, http_context):
+        if http_context.method == 'POST':
+            id = http_context.json_body()['id']
+            mysql_result = self.mysql.get("m4v_bookings", ["COUNT(*) AS count_bookings"], "WHERE account = " + str(id))
+            return mysql_result
+
+    ############### EVALUATIONS ###############
+
+    @url(r'/api/m4v/finances/evaluations/project')
+    @endpoint(api=True)
+    def handle_api_m4v_finances_evaluations_project(self, http_context):
+        if http_context.method == 'POST':
+            project = http_context.json_body()['project']
+            date_from = http_context.json_body()['date_from']
+            date_to = http_context.json_body()['date_to']
+            mysql_result = self.mysql.get("m4v_bookings", ["id", "name", "description", "DATE_FORMAT(booking_date, '%Y-%m-%d') AS booking_date", "amount"], "WHERE project = '" + str(project) + "' AND booking_date BETWEEN '" + str(date_from) + "' AND '" + str(date_to) + "' ORDER BY booking_date")
+            
+            total_amount = 0.0
+            total_amount_minus = 0.0
+            total_amount_plus = 0.0
+            
+            for result in mysql_result:
+                total_amount += float(result["amount"])
+                if float(result["amount"]) < 0:
+                    total_amount_minus += float(result["amount"])
+                elif float(result["amount"]) > 0:
+                    total_amount_plus += float(result["amount"])
+                
+
+            return { "data": mysql_result, "total_amount": total_amount, "total_amount_plus": total_amount_plus, "total_amount_minus": total_amount_minus }

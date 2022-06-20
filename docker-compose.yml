@@ -1,14 +1,14 @@
 version: "3.5"
 services:
-    toastmanager:
-        build: ./build/manager4verein-webui/
-        container_name: manager4verein_webui
+    manager4verein_webui_dev:
+        build: ./build-dev/manager4verein-webui/
+        container_name: manager4verein_webui_dev
         ports:
             - "8081:8000"
         links:
-            - manager4verein_db:mysql
+            - manager4verein_db_dev:mysql
         depends_on:
-            - manager4verein_db
+            - manager4verein_db_dev
         environment:
             - ROOT_PASSWORD=Muster!
             - DEV_MODE=1
@@ -16,16 +16,16 @@ services:
             - TIMEZONE=Europe/Berlin
             - SERVER_COLOR=blue
             - SERVER_PORT=8000
-            - MYSQL_HOST=manager4verein_db
+            - MYSQL_HOST=manager4verein_db_dev
             - MYSQL_USER=root
             - MYSQL_PASSWORD=Muster!
             - MYSQL_DATABASE=manager4verein
         volumes:
             - ./app:/opt/app/
 
-    manager4verein_db:
+    manager4verein_db_dev:
         image: mariadb:latest
-        container_name: manager4verein_db
+        container_name: manager4verein_db_dev
         environment:
             - MYSQL_ROOT_PASSWORD=Muster!
             - MYSQL_DATABASE=manager4verein
@@ -35,11 +35,11 @@ services:
     phpmyadmin:
         image: phpmyadmin/phpmyadmin:latest
         links:
-            - manager4verein_db:mysql
+            - manager4verein_db_dev:mysql
         depends_on:
-          - manager4verein_db
+          - manager4verein_db_dev
         ports:
           - '7777:80'
         environment:
-          PMA_HOST: manager4verein_db
+          PMA_HOST: manager4verein_db_dev
           MYSQL_ROOT_PASSWORD: Muster!

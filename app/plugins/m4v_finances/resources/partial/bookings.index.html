@@ -10,7 +10,7 @@
             <uib:tab heading="{{account.name}}" ng:click="loadBookings(account.id, 0)" ng:repeat="account in accounts">
                 <div class="row" style="margin-top: 10px;margin-bottom: 10px;">
                     <div class="col-md-10">
-                        <input type="text" class="form-control" placeholder="{{'Search'|translate}}">
+                        <input type="search" ng:model="query" class="form-control" placeholder="{{'Search'|translate}}" typeahead-min-length="1">
                     </div>
                     <div class="col-md-2" style="margin-left: -15px;">
                         <select class="form-control" ng:model="current_year" ng:change="loadBookings(account.id, 0, current_year)">

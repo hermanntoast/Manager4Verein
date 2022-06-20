@@ -30,6 +30,13 @@ class ItemProvider(SidebarItemProvider):
                 'icon': 'tasks',
                 'url': '/view/m4v/finances/projects',
                 'children': []
+            },
+            {
+                'attach': 'category:finances',
+                'name': 'Auswertungen',
+                'icon': 'dna',
+                'url': '/view/m4v/finances/evaluation',
+                'children': []
             }
         ]
 

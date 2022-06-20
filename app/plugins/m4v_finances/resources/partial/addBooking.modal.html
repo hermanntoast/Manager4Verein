@@ -1,58 +1,66 @@
-<div class="modal-header">
-    <h4>Add booking - {{booking.name}}</h4>
-</div>
+<form>
 
-<div class="modal-body">
-    <form>
-        <div class="row">
-            <div class="form-group col-md-6">
-                <label for="booking.name" translate>Name</label>
-                <input ng:model="booking.name" type="text" class="form-control" id="booking.name" placeholder="Name">
-            </div>
-            <div class="form-group col-md-4">
-                <label for="booking.amount" translate>Amount</label>
-                <input ng:model="booking.amount" type="number" step="0.01" class="form-control" id="booking.amount">
-            </div>
-            <div class="form-group col-md-2" style="padding-top:25px;">
-                <button ng:click="toggleAmountValue()" class="btn" translate>Toggle value</button>
-            </div>
-        </div>
-        <div class="form-group">
-            <label for="booking.description" translate>Description</label>
-            <input ng:model="booking.description" type="text" class="form-control" id="booking.description" placeholder="Description">
-        </div>
-        <div class="row">
-            <div class="form-group col-md-4">
-                <label for="booking.account" translate>Account</label>
-                <select ng:model="booking.account" class="form-control" id="booking.account">
-                    <option ng:repeat="account in accounts" value="{{account.id}}">{{account.name}}</option>
-                </select>
-            </div>
-            <div class="form-group col-md-4">
-                <label for="booking.project" translate>Project</label>
-                <select ng:model="booking.project" class="form-control" id="booking.project">
-                <option ng:repeat="project in projects" value="{{project.id}}">{{project.name}}</option>
-                </select>
-            </div>
-            <div class="form-group col-md-4">
-                <label for="booking.tax_zone" translate>Tax-Zone</label>
-                <select ng:model="booking.tax_zone" class="form-control" id="booking.tax_zone">
-                <option ng:repeat="tax_zone in tax_zones" value="{{tax_zone.id}}">{{tax_zone.name}}</option>
-                </select>
-            </div>
-        </div>
-        <div class="form-group">
-            <label for="booking.attachments" translate>Attachments</label>
-            <attachment-file-uploader uploaded="uploadAttachment(data)"></attachment-file-uploader>
-            <div ng:repeat="attachment in booking.attachments">
-                <span style="background-color: red;color: white;border:1px solid black;border-radius: 30px;width: 50px;height: 50px;" ng:click="removeAttachment(attachment)">X</span>
-                <img src="{{attachment}}" style="height: 200px;" />
-            </div>
-        </div>
-    </form>
-</div>
+    <div class="modal-header">
+        <h4 ng:if="newbooking">Add booking</h4>
+        <h4 ng:if="!newbooking">Edit booking - {{booking.name}}</h4>
+    </div>
 
-<div class="modal-footer">
-    <button class="btn btn-danger" ng:click="close()">Close</button>
-    <button class="btn btn-success" ng:click="save()">Save</button>
-</div>
+    <div class="modal-body">
+            <div class="row">
+                <div class="form-group col-md-2">
+                    <label for="booking.booking_date" translate>Date</label>
+                    <input ng:model="booking.booking_date" required type="text" class="form-control" id="booking.booking_date" placeholder="YYYY-MM-DD">
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="booking.name" translate>Name</label>
+                    <input ng:model="booking.name" required type="text" class="form-control" id="booking.name" placeholder="Name">
+                </div>
+                <div class="form-group col-md-2">
+                    <label for="booking.amount" translate>Amount</label>
+                    <input ng:model="booking.amount" required type="number" step="0.01" class="form-control" id="booking.amount">
+                </div>
+                <div class="form-group col-md-2" style="padding-top:25px;">
+                    <button ng:click="toggleAmountValue()" class="btn" style="width:100%;" translate>Toggle value</button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="booking.description" translate>Description</label>
+                <input ng:model="booking.description" required type="text" class="form-control" id="booking.description" placeholder="Description">
+            </div>
+            <div class="row">
+                <div class="form-group col-md-4">
+                    <label for="booking.account" translate>Account</label>
+                    <select ng:model="booking.account" required class="form-control" id="booking.account">
+                        <option ng:repeat="account in accounts" value="{{account.id}}">{{account.name}}</option>
+                    </select>
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="booking.project" translate>Project</label>
+                    <select ng:model="booking.project" class="form-control" id="booking.project">
+                    <option ng:repeat="project in projects" value="{{project.id}}">{{project.name}}</option>
+                    </select>
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="booking.tax_zone" translate>Tax-Zone</label>
+                    <select ng:model="booking.tax_zone" class="form-control" id="booking.tax_zone">
+                    <option ng:repeat="tax_zone in tax_zones" value="{{tax_zone.id}}">{{tax_zone.name}}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="booking.attachments" translate>Attachments</label>
+                <attachment-file-uploader uploaded="uploadAttachment(data)"></attachment-file-uploader>
+                <div ng:repeat="attachment in booking.attachments">
+                    <span style="background-color: red;color: white;border:1px solid black;border-radius: 30px;width: 50px;height: 50px;" ng:click="removeAttachment(attachment)">X</span>
+                    <img src="{{attachment}}" style="height: 200px;" />
+                </div>
+            </div>
+    </div>
+
+    <div class="modal-footer">
+        <button class="btn btn-danger" style="float:left;" ng:click="delete(booking.id)" ng:if="!newbooking">Delete</button>
+        <button class="btn" ng:click="close()">Close</button>
+        <button class="btn btn-success" ng:click="save()" type="submit">Save</button>
+    </div>
+
+</form>
