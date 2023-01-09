@@ -25,6 +25,7 @@ RUN pip3 install python-pam mysql-connector-python
 
 COPY docker-entrypoint.sh /root/docker-entrypoint.sh
 COPY m4v-sqltemplate.sql /root/m4v-sqltemplate.sql
+COPY ./app /opt/app
 
 RUN chmod +x /root/docker-entrypoint.sh
 

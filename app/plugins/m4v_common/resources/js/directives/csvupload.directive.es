@@ -15,7 +15,7 @@ angular.module('core').directive("csvFileUploader", function($http) {
                         var name = fileName.split(".")[0];
                         var file = input[0].files[0];
                         var reader = new FileReader();
-                        reader.readAsText(file, "UTF-8");
+                        reader.readAsText(file, "ISO-8859-1");
                         reader.onload = function (evt) {
                             $http.post('/api/m4v/common/files/csv', {filecontent: evt.target.result}).then( (resp) => {
                                 scope.uploaded({data: resp.data});

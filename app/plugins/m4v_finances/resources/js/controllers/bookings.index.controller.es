@@ -323,7 +323,18 @@ angular.module('m4v.finances').controller('M4VImportBookingModalController', fun
     };
 
     $scope.saveEntries = (data) => {
-        $scope.csvdata = data;
+        $scope.csvdata = [];
+        for (let entry of data) {
+            console.log(entry);
+            if (!("kontonummeriban" in entry)) {
+                entry.kontonummeriban = "n/a";
+                entry.beguenstigterzahlungspflichtiger = "Sparkasse Schwarzwald-Baar";
+            }
+            if (entry.verwendungszweck == "") {
+                entry.verwendungszweck = entry.buchungstext;
+            }
+            $scope.csvdata.push(entry);
+        }
         $scope.error = false;
     }
 

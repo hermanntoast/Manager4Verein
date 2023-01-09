@@ -10,15 +10,9 @@ dependencies:
     - !PluginDependency {
         plugin_name: core
     }
-    # - !OptionalPluginDependency {
-    #   plugin_name: my_other_plugin
-    # }
-    # - !ModuleDependency {
-    #   module_name: requests
-    # }
-    # - !BinaryDependency {
-    #   binary_name: curl
-    # }
+    - !PluginDependency {
+        plugin_name: m4v_common
+    }
 resources:
     - 'resources/js/module.es'
     - 'resources/js/routing.es'

@@ -4,7 +4,7 @@ services:
         build: ./build-dev/manager4verein-webui/
         container_name: manager4verein_webui_dev
         ports:
-            - "8081:8000"
+            - "8001:8000"
         links:
             - manager4verein_db_dev:mysql
         depends_on:
@@ -32,6 +32,22 @@ services:
         volumes:
             - ./data/database:/var/lib/mysql
 
+    # manager4verein_addc:
+    #     build: ./build-dev/manager4verein-addc/
+    #     image: manager4verein_addc
+    #     container_name: manager4verein_addc
+    #     privileged: true
+    #     ports:
+    #         - "8389:389"
+    #         - "8636:636"
+    #     environment:
+    #         - SMB_REALM=kjg.intern
+    #         - SMB_DOMAIN=KJG
+    #         - SMB_ADMIN_PASSWORD=Muster!
+    #     hostname: server.kjg.intern
+    #     volumes:
+    #         - ./data/addc:/var/lib/samba
+
     phpmyadmin:
         image: phpmyadmin/phpmyadmin:latest
         links:
@@ -39,7 +55,7 @@ services:
         depends_on:
           - manager4verein_db_dev
         ports:
-          - '7777:80'
+          - '8011:80'
         environment:
           PMA_HOST: manager4verein_db_dev
           MYSQL_ROOT_PASSWORD: Muster!

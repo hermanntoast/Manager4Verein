@@ -4,7 +4,7 @@
 version: "3.5"
 services:
     manager4verein_webui:
-        image: hermanntoast/manager4verein      
+        image: hermanntoast/manager4verein_webui:1.0.0     
         container_name: manager4verein_webui
         ports:
             - "8000:8000"
