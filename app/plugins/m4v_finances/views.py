@@ -74,7 +74,7 @@ class Handler(HttpPlugin):
     @endpoint(api=True)
     def handle_api_m4v_finances_projects(self, http_context):
         if http_context.method == 'GET':
-            mysql_result = self.mysql.get("m4v_projects", ["id", "name", "description", "created_by", "created_at"])
+            mysql_result = self.mysql.get("m4v_projects", ["id", "name", "description", "color", "created_by", "created_at"])
             return mysql_result
 
     @url(r'/api/m4v/finances/projects/add')
@@ -83,8 +83,9 @@ class Handler(HttpPlugin):
         if http_context.method == 'POST':
             name = http_context.json_body()['name']
             description = http_context.json_body()['description']
+            color = http_context.json_body()['color']
             created_by = http_context.json_body()['created_by']
-            mysql_result = self.mysql.insert("m4v_projects", {"name": name, "description": description, "created_by": created_by, "updated_by": created_by})
+            mysql_result = self.mysql.insert("m4v_projects", {"name": name, "description": description, "color": color, "created_by": created_by, "updated_by": created_by})
             return mysql_result
 
     @url(r'/api/m4v/finances/projects/get')
@@ -92,7 +93,7 @@ class Handler(HttpPlugin):
     def handle_api_m4v_finances_projects_get(self, http_context):
         if http_context.method == 'POST':
             id = http_context.json_body()['id']
-            mysql_result = self.mysql.get("m4v_projects", ["id", "name", "description", "created_by", "created_at"], "WHERE id = " + str(id))
+            mysql_result = self.mysql.get("m4v_projects", ["id", "name", "description", "color", "created_by", "created_at"], "WHERE id = " + str(id))
             return mysql_result
 
     @url(r'/api/m4v/finances/projects/update')
@@ -102,8 +103,9 @@ class Handler(HttpPlugin):
             id = http_context.json_body()['id']
             name = http_context.json_body()['name']
             description = http_context.json_body()['description']
+            color = http_context.json_body()['color']
             updated_by = http_context.json_body()['updated_by']
-            mysql_result = self.mysql.update("m4v_projects", {"name": name, "description": description, "updated_by": updated_by, "updated_at": "NOW()"}, "id = " + str(id))
+            mysql_result = self.mysql.update("m4v_projects", {"name": name, "description": description, "color": color, "updated_by": updated_by, "updated_at": "NOW()"}, "id = " + str(id))
             return mysql_result
 
     @url(r'/api/m4v/finances/projects/delete')
@@ -142,11 +144,11 @@ class Handler(HttpPlugin):
             year = http_context.json_body()['year']
             monthfilter = ""
             yearfilter = ""
-            if month > 0:
+            if int(month) > 0:
                 monthfilter = " AND MONTH(booking_date) = " + str(month)
             if int(year) > 0:
                 yearfilter = " AND YEAR(booking_date) = " + str(year)
-            mysql_result = self.mysql.get("m4v_bookings AS b", ["b.id", "b.name", "b.description", "DATE_FORMAT(booking_date, '%Y-%m-%d') AS booking_date", "DATE_FORMAT(booking_date, '%d.%m.%Y') AS booking_date_formatted", "b.amount", "FORMAT(b.amount, 2) AS amount_formatted", "b.account", "b.project", "p.name AS project_name", "b.tax_zone", "b.invoice_image", "b.created_by", "b.created_at"], "LEFT JOIN `m4v_projects` AS p ON p.id = b.project WHERE account = " + account + monthfilter + yearfilter + " ORDER BY booking_date")
+            mysql_result = self.mysql.get("m4v_bookings AS b", ["b.id", "b.name", "b.description", "DATE_FORMAT(booking_date, '%Y-%m-%d') AS booking_date", "DATE_FORMAT(booking_date, '%d.%m.%Y') AS booking_date_formatted", "b.amount", "FORMAT(b.amount, 2) AS amount_formatted", "b.account", "b.project", "p.name AS project_name", "p.color AS project_color", "b.tax_zone", "b.invoice_image", "b.created_by", "b.created_at"], "LEFT JOIN `m4v_projects` AS p ON p.id = b.project WHERE account = " + account + monthfilter + yearfilter + " ORDER BY booking_date")
             return mysql_result
 
     @url(r'/api/m4v/finances/bookings/add')

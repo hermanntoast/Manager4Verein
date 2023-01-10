@@ -17,4 +17,5 @@ resources:
     - 'resources/js/directives/attachmentupload.directive.es'
     - 'resources/partial/index.html'
     - 'resources/style.less'
+    - 'resources/angular-locale_de-de.js'
     - 'ng:m4v.common'

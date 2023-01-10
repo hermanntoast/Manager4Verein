@@ -1,5 +1,9 @@
 #!/bin/bash
 
+echo "##########################################"
+echo "Running Version 1.0.0 / Build $(cat /opt/build.txt)"
+echo "##########################################"
+
 timedatectl set-timezone $TIMEZONE
 
 echo "root:$ROOT_PASSWORD" | chpasswd
@@ -12,6 +16,7 @@ sed -i "s/  user_config:.*/  user_config: m4v/" /etc/ajenti/config.yml
 
 cat << EOF >> /etc/ajenti/config.yml
 
+language: de
 view:
     plugin: m4v_common
     filepath: resources/content/main_view.html
@@ -39,6 +44,10 @@ if [ $(mysql -u ${MYSQL_USER} -p${MYSQL_PASSWORD} ${MYSQL_DATABASE} -e "show tab
     echo "This seems to be the first start. Create sql database and structure first!"
     mysql -u ${MYSQL_USER} -p${MYSQL_PASSWORD} ${MYSQL_DATABASE} < /root/m4v-sqltemplate.sql
     mysql -u ${MYSQL_USER} -p${MYSQL_PASSWORD} ${MYSQL_DATABASE} -e "INSERT INTO m4v_users (username, firstname, lastname, mail, password) VALUES ('admin', 'Adam', 'Administrator', 'admin@example.com', '670506c9b67375007e1b50d698085e54bcd6e8bc6a7fece2a907ff42b83a92698147460dee66c1856ac9777875c7f0e5b1edac57486e7a841311ea6beeb235a2')"
+    mysql -u ${MYSQL_USER} -p${MYSQL_PASSWORD} ${MYSQL_DATABASE} -e "INSERT INTO m4v_taxzones (id, name, tax) VALUES (1, 'ideellen Bereich', '0')"
+    mysql -u ${MYSQL_USER} -p${MYSQL_PASSWORD} ${MYSQL_DATABASE} -e "INSERT INTO m4v_taxzones (id, name, tax) VALUES (2, 'Vermögensverwaltung', '0')"
+    mysql -u ${MYSQL_USER} -p${MYSQL_PASSWORD} ${MYSQL_DATABASE} -e "INSERT INTO m4v_taxzones (id, name, tax) VALUES (3, 'Zweckbetrieb', '0')"
+    mysql -u ${MYSQL_USER} -p${MYSQL_PASSWORD} ${MYSQL_DATABASE} -e "INSERT INTO m4v_taxzones (id, name, tax) VALUES (4, 'wirtschaftlichen Geschäftsbetrieb', '0')"
 fi
 
 if [ $DEV_MODE == 1 ]

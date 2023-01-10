@@ -5,22 +5,33 @@ from .exceptions import MySQLException
 
 class MySQLConnector:
     def __init__(self):
-        config = ConfigReader().load().get()
+        self.config = ConfigReader().load().get()
+        self.__connect()
+        self.__close()
+
+    def __connect(self):
         self.mysql = mysql.connector.connect(
-          host=config["mysql_host"],
-          user=config["mysql_user"],
-          password=config["mysql_password"],
-          database=config["mysql_database"]
+          host=self.config["mysql_host"],
+          user=self.config["mysql_user"],
+          password=self.config["mysql_password"],
+          database=self.config["mysql_database"]
         )
         if self.mysql == None:
             raise(MySQLException("MySQL Connection failed!"))
 
+    def __close(self):
+        self.mysql.close()
+
     def query(self, query):
+        self.__connect()
         cursor = self.mysql.cursor()
         cursor.execute(query)
-        return cursor.fetchall()
+        result = cursor.fetchall()
+        self.__close()
+        return result
 
     def get(self, table, fields, append=""):
+        self.__connect()
         cursor = self.mysql.cursor()
         field_string = ""
         for field in fields:
@@ -46,9 +57,11 @@ class MySQLConnector:
                         fieldname = fieldname.split(".")[1]
                 tmp[fieldname] = str(query_result[i])
             result.append(tmp)
+        self.__close()
         return result
 
     def insert(self, table, data_param):
+        self.__connect()
         if type(data_param) == type([]):
             datas = data_param
         else:
@@ -81,9 +94,12 @@ class MySQLConnector:
                 print("====> Query was: " + query)
                 print(e)
                 return False
+
+        self.__close()
         return True
 
     def delete(self, table, filter):
+        self.__connect()
         cursor = self.mysql.cursor()
         query = "DELETE FROM " + table + " WHERE " + filter
         try:
@@ -93,9 +109,12 @@ class MySQLConnector:
             print("====> Query was: " + query)
             print(e)
             return False
+
+        self.__close()
         return True
 
     def update(self, table, data, filter):
+        self.__connect()
         cursor = self.mysql.cursor()
         data_string = ""
         for d in data:
@@ -114,4 +133,6 @@ class MySQLConnector:
             print("====> Query was: " + query)
             print(e)
             return False
+
+        self.__close()
         return True

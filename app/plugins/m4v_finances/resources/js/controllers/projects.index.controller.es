@@ -15,7 +15,8 @@ angular.module('m4v.finances').controller('M4v_financesProjectsIndexController',
             controller  : 'M4VAddProjectModalController',
             resolve: { project: function() { return false; } }
         }).result.then(function(project) {
-            $http.post('/api/m4v/finances/projects/add', {name: project.name, description: project.description, created_by: $scope.identity.user}).then( (resp) => {
+            console.log(project);
+            $http.post('/api/m4v/finances/projects/add', {name: project.name, description: project.description, color: project.color, created_by: $scope.identity.user}).then( (resp) => {
                 notify.success(gettext('Saved successfully!'));
                 $scope.loadProjects();
             }, error => {
@@ -30,7 +31,7 @@ angular.module('m4v.finances').controller('M4v_financesProjectsIndexController',
             controller  : 'M4VAddProjectModalController',
             resolve: { project: function() { return project; } }
         }).result.then(function(project) {
-            $http.post('/api/m4v/finances/projects/update', {id: project.id, name: project.name, description: project.description, updated_by: $scope.identity.user}).then( (resp) => {
+            $http.post('/api/m4v/finances/projects/update', {id: project.id, name: project.name, description: project.description, color: project.color, updated_by: $scope.identity.user}).then( (resp) => {
                 notify.success(gettext('Saved successfully!'));
                 $scope.loadProjects();
             }, error => {

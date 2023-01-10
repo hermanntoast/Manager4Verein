@@ -6,55 +6,68 @@ angular.module('m4v.finances').controller('M4v_financesBookingsIndexController',
     $scope.months = {
         "0": {
             "id": 0,
-            "name": "Alle"
+            "name": "Alle",
+            "name_long": "Alle"
         },
         "1": {
             "id": 1,
-            "name": "Jan"
+            "name": "Jan",
+            "name_long": "Januar"
         },
         "2": {
             "id": 2,
-            "name": "Feb"
+            "name": "Feb",
+            "name_long": "Februar"
         },
         "3": {
             "id": 3,
-            "name": "Mär"
+            "name": "Mär",
+            "name_long": "März"
         },
         "4": {
             "id": 4,
-            "name": "Apr"
+            "name": "Apr",
+            "name_long": "April"
         },
         "5": {
             "id": 5,
-            "name": "Mai"
+            "name": "Mai",
+            "name_long": "Mai"
         },
         "6": {
             "id": 6,
-            "name": "Jun"
+            "name": "Jun",
+            "name_long": "Juni"
         },
         "7": {
             "id": 7,
-            "name": "Jul"
+            "name": "Jul",
+            "name_long": "Juli"
         },
         "8": {
             "id": 8,
-            "name": "Aug"
+            "name": "Aug",
+            "name_long": "August"
         },
         "9": {
             "id": 9,
-            "name": "Sep"
+            "name": "Sep",
+            "name_long": "September"
         },
         "10": {
             "id": 10,
-            "name": "Okt"
+            "name": "Okt",
+            "name_long": "Oktober"
         },
         "11": {
             "id": 11,
-            "name": "Nov"
+            "name": "Nov",
+            "name_long": "November"
         },
         "12": {
             "id": 12,
-            "name": "Dez"
+            "name": "Dez",
+            "name_long": "Dezember"
         },
     }
     
@@ -62,7 +75,7 @@ angular.module('m4v.finances').controller('M4v_financesBookingsIndexController',
         $http.get('/api/m4v/finances/accounts').then( (resp) => {
             $scope.accounts = resp.data;
             if($scope.accounts.length > 0) {
-                $scope.loadBookings($scope.accounts[0].id, 0);
+                $scope.loadBookings($scope.accounts[0].id);
             }
         });
     }
@@ -73,11 +86,12 @@ angular.module('m4v.finances').controller('M4v_financesBookingsIndexController',
         });
     }
 
-    $scope.loadBookings = (account, month, year=$scope.current_year) => {
+    $scope.loadBookings = (account, month=$scope.current_month, year=$scope.current_year) => {
+        $scope.bookings = null;
         $scope.current_account = account;
-        $scope.current_month = month;
-        $scope.current_year = year;
-        console.log("-> Loading booking entries for account '" + $scope.current_account + "', year '" + $scope.current_year + "', month '" + $scope.current_month + "'");
+        $scope.current_month = String(month);
+        $scope.current_year = String(year);
+        console.log("-> Loading booking entries for account '" + $scope.current_account + "', year '" + $scope.current_year + "', month '" + $scope.current_month + "' (" + typeof($scope.current_month) + ")");
         $http.post('/api/m4v/finances/bookings', {account: account, month: month, year: $scope.current_year}).then( (resp) => {
             $scope.bookings = resp.data;
             $scope.bookings_totalamount = 0;
@@ -124,48 +138,81 @@ angular.module('m4v.finances').controller('M4v_financesBookingsIndexController',
         });
     }
 
-    $scope.updateBooking = (account, booking) => {
-        $uibModal.open({
-            templateUrl : '/m4v_finances:resources/partial/addBooking.modal.html',
-            controller  : 'M4VAddBookingModalController',
-            backdrop: 'static',
-            size: 'lg',
-            resolve: { account: function() { return account; }, booking: function() { return booking; } }
-        }).result.then(function(booking) {
-            if(booking.action == "update") {
-                $http.post('/api/m4v/finances/bookings/update', {
-                    id: booking.id, 
-                    booking_date: booking.booking_date, 
-                    name: booking.name, 
-                    description: booking.description, 
-                    amount: booking.amount, 
-                    account: booking.account, 
-                    project: booking.project, 
-                    tax_zone: booking.tax_zone, 
-                    invoice_image: booking.invoice_image, 
-                    updated_by: $scope.identity.user
-                }).then( (resp) => {
-                    notify.success(gettext('Saved successfully!'));
-                    $scope.loadBookings(account, $scope.current_month);
-                }, error => {
-                    notify.error(gettext('Failed to save!'));
-                });
-            }
-            else if(booking.action == "delete") {
-                messagebox.show({
-                    text: gettext("Are you sure you want to delete '" + booking.name + "'?"),
-                    positive: gettext('Delete'),
-                    negative: gettext('Cancel')
-                }).then(() => {
-                    $http.post('/api/m4v/finances/bookings/delete', { id: booking.id }).then( (resp) => {
-                        notify.success(gettext('Deleted successfully!'));
-                    });
-                    $scope.loadBookings(account, $scope.current_month);
-                });
-            }
-            
+    $scope.updateBooking = (booking) => {
+        $http.post('/api/m4v/finances/bookings/update', {
+            id: booking.id, 
+            booking_date: booking.booking_date, 
+            name: booking.name, 
+            description: booking.description, 
+            amount: booking.amount, 
+            account: booking.account, 
+            project: booking.project, 
+            tax_zone: booking.tax_zone, 
+            invoice_image: booking.invoice_image, 
+            updated_by: $scope.identity.user
+        }).then( (resp) => {
+            notify.success(gettext('Saved successfully!'));
+            $scope.loadBookings($scope.current_account, $scope.current_month);
+        }, error => {
+            notify.error(gettext('Failed to save!'));
         });
     }
+
+    $scope.deleteBooking = (booking) => {
+        messagebox.show({
+            text: gettext("Are you sure you want to delete this entry?") + " " + booking.name + " / " + booking.description + "?",
+            positive: gettext('Delete'),
+            negative: gettext('Cancel')
+        }).then(() => {
+            $http.post('/api/m4v/finances/bookings/delete', { id: booking.id }).then( (resp) => {
+                notify.success(gettext('Deleted successfully!'));
+            });
+            $scope.loadBookings($scope.current_account, $scope.current_month);
+        });
+    }
+
+    // $scope.updateBookingModal = (account, booking) => {
+    //     $uibModal.open({
+    //         templateUrl : '/m4v_finances:resources/partial/addBooking.modal.html',
+    //         controller  : 'M4VAddBookingModalController',
+    //         backdrop: 'static',
+    //         size: 'lg',
+    //         resolve: { account: function() { return account; }, booking: function() { return booking; } }
+    //     }).result.then(function(booking) {
+    //         if(booking.action == "update") {
+    //             $http.post('/api/m4v/finances/bookings/update', {
+    //                 id: booking.id, 
+    //                 booking_date: booking.booking_date, 
+    //                 name: booking.name, 
+    //                 description: booking.description, 
+    //                 amount: booking.amount, 
+    //                 account: booking.account, 
+    //                 project: booking.project, 
+    //                 tax_zone: booking.tax_zone, 
+    //                 invoice_image: booking.invoice_image, 
+    //                 updated_by: $scope.identity.user
+    //             }).then( (resp) => {
+    //                 notify.success(gettext('Saved successfully!'));
+    //                 $scope.loadBookings(account, $scope.current_month);
+    //             }, error => {
+    //                 notify.error(gettext('Failed to save!'));
+    //             });
+    //         }
+    //         else if(booking.action == "delete") {
+    //             messagebox.show({
+    //                 text: gettext("Are you sure you want to delete '" + booking.name + "'?"),
+    //                 positive: gettext('Delete'),
+    //                 negative: gettext('Cancel')
+    //             }).then(() => {
+    //                 $http.post('/api/m4v/finances/bookings/delete', { id: booking.id }).then( (resp) => {
+    //                     notify.success(gettext('Deleted successfully!'));
+    //                 });
+    //                 $scope.loadBookings(account, $scope.current_month);
+    //             });
+    //         }
+            
+    //     });
+    // }
 
     $scope.importBooking = (account) => {
         $uibModal.open({
@@ -180,15 +227,25 @@ angular.module('m4v.finances').controller('M4v_financesBookingsIndexController',
         });
     }
 
-    $scope.filter = (row) => {
-        let result = false;
-        console.log(row);
-        for (var value of ['name', 'description']) {
-            if (row[value] != undefined) {
-                result = result || row[value].toLowerCase().indexOf($scope.query.toLowerCase() || '') != -1;
-            }
+    // $scope.filter = (row) => {
+    //     let result = false;
+    //     console.log(row);
+    //     for (var value of ['name', 'description']) {
+    //         if (row[value] != undefined) {
+    //             result = result || row[value].toLowerCase().indexOf($scope.query.toLowerCase() || '') != -1;
+    //         }
+    //     }
+    //     return result;
+    // }
+
+    $scope.toggleAmountValue = (booking) => {
+        booking.amount = booking.amount * (-1);
+    }
+
+    $scope.closeAllOpenBookings = () => {
+        for (const booking in $scope.bookings) {
+            $scope.bookings[booking].edit = false;
         }
-        return result;
     }
 
     $scope.$watch('identity.user', function() {
@@ -197,9 +254,12 @@ angular.module('m4v.finances').controller('M4v_financesBookingsIndexController',
 
         $scope.profile = $scope.identity.profile;
         $scope.current_year = String(new Date().getFullYear());
+        $scope.current_month = String(new Date().getMonth() + 1);
+        console.log($scope.current_month);
         $scope.query = "";
         $scope.loadYears();
         $scope.loadAccounts();
+        $scope.loadProjects();
     });
 
 });
@@ -250,16 +310,19 @@ angular.module('m4v.finances').controller('M4VAddBookingModalController', functi
     }
 
     $scope.uploadAttachment = (data) => {
-        $scope.booking.attachments.push(data);
+        for (const file of data) {
+            $scope.booking.attachments.push(file);
+        }
     }
 
     $scope.removeAttachment = (attachment) => {
-        $scope.booking.attachments.splice($scope.booking.attachments.indexOf(attachment));
+        $scope.booking.attachments.splice($scope.booking.attachments.indexOf(attachment), 1);
     }
 
     if (!booking) {
+        let today = new Date();
         $scope.booking = {};
-        $scope.booking.booking_date = "";
+        $scope.booking.booking_date = today.getFullYear() + "-" + (today.getMonth() + 1) + "-" + today.getDate();
         $scope.booking.name = "";
         $scope.booking.description = "";
         $scope.booking.amount = 0;

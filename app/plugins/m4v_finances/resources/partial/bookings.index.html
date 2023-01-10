@@ -7,63 +7,117 @@
     </div>
     <div ng:show="accounts != null && accounts.length != 0">
         <uib:tabset>
-            <uib:tab heading="{{account.name}}" ng:click="loadBookings(account.id, 0)" ng:repeat="account in accounts">
+            <uib:tab heading="{{account.name}}" ng:click="loadBookings(account.id)" ng:repeat="account in accounts">
                 <div class="row" style="margin-top: 10px;margin-bottom: 10px;">
-                    <div class="col-md-10">
-                        <input type="search" ng:model="query" class="form-control" placeholder="{{'Search'|translate}}" typeahead-min-length="1">
+                    <div class="col-md-8">
+                        <input ng:click="current_month = '0';loadBookings(account.id)" type="search" ng:model="searchQuery" class="form-control" placeholder="{{'Search'|translate}}" typeahead-min-length="1">
                     </div>
                     <div class="col-md-2" style="margin-left: -15px;">
-                        <select class="form-control" ng:model="current_year" ng:change="loadBookings(account.id, 0, current_year)">
+                        <select class="form-control" ng:model="current_month" ng:change="loadBookings(account.id, current_month, current_year)">
+                            <option ng:repeat="month in months" value="{{month.id}}">{{month.name_long}}</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2" style="margin-left: -15px;">
+                        <select class="form-control" ng:model="current_year" ng:change="loadBookings(account.id, current_month, current_year)">
                             <option ng:repeat="year in years" value="{{year.year}}">{{year.year}}</option>
                         </select>
                     </div>
                 </div>
+                
+                <br />
 
-                <uib:tabset>
-                    <uib:tab heading="{{month.name}}" ng:click="loadBookings(account.id, month.id)" ng:repeat="month in months">
-                        <br />
-                        <progress-spinner ng:show="bookings == null"></progress-spinner>
-                        <div ng:show="bookings != null && bookings.length == 0">
-                            <br />
-                            <span translate>No bookings were found!</span>
+                <progress-spinner ng:show="bookings == null"></progress-spinner>
+
+                <div ng:show="bookings != null && bookings.length == 0">
+                    <span translate>No bookings were found!</span>
+                </div>
+
+                <div ng:show="bookings != null && bookings.length != 0">
+                    <div ng:repeat="booking in bookings | filter: searchQuery | orderBy: (booking.booking_date | date: 'yyyyMMdd'):true" style="box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;width: 100%;border: 2px solid grey;border-radius: 10px;padding: 10px;margin-bottom: 10px;">
+                        <div class="row" style="height: 100%;" ng:click="booking.edit = true">
+                            <div class="col-md-2">
+                                <span style="font-size: larger;" ng:hide="booking.edit">{{booking.booking_date | date: 'dd.MM.yyyy'}}</span>
+                                <span style="font-size: larger;" ng:show="booking.edit"><input class="form-control" type="text" ng:model="booking.booking_date"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <span style="font-size: larger;" ng:hide="booking.edit">{{booking.name}}<br></span>
+                                <span style="font-size: larger;" ng:show="booking.edit"><input class="form-control" type="text" style="width: 100%;" ng:model="booking.name"></span>
+                                <span ng:hide="booking.edit">{{booking.description}}</span>
+                                <span ng:show="booking.edit"><input class="form-control" type="text" style="width: 100%;margin-top: 5px;" ng:model="booking.description"></span>
+                            </div>
+                            <div class="col-md-2">
+                                <span ng:hide="booking.edit">
+                                    <span class="badge" style="background-color: {{booking.project_color}};" ng:if="booking.project != 0">{{booking.project_name}}</span>
+                                    <span class="badge badge-danger" ng:if="booking.project == 0">{{booking.project_name}}</span>
+                                </span>
+                                <span ng:show="booking.edit">
+                                    <select ng:model="booking.project" class="form-control" id="booking.project">
+                                        <option ng:repeat="project in projects" value="{{project.id}}">{{project.name}}</option>
+                                    </select>
+                                </span>
+                            </div>
+                            <div class="col-md-2" style="text-align:right;">
+                                <span ng:hide="booking.edit">
+                                    <span class="badge badge-success" style="font-size: larger;" ng:if="booking.amount >= 0">{{booking.amount_formatted}} €</span>
+                                    <span class="badge badge-danger" style="font-size: larger;" ng:if="booking.amount < 0">{{booking.amount_formatted}} €</span>
+                                </span>
+                                <span ng:show="booking.edit">
+                                    <input class="form-control" type="text" style="width: 100%;text-align: right;" ng:model="booking.amount">
+                                    <br>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <button class="btn" ng:click="toggleAmountValue(booking)" ng:class="{'btn-secondary': booking.amount < 0, 'btn-success': booking.amount >= 0}">Einnahmen</button>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <button class="btn" ng:click="toggleAmountValue(booking)" ng:class="{'btn-danger': booking.amount < 0, 'btn-secondary': booking.amount >= 0}">Ausgaben</button>
+                                        </div>
+                                    </div>
+                                </span>
+                            </div>
                         </div>
-                        <div ng:show="bookings != null && bookings.length != 0">
-                            <table class="table">
-                                <tr>
-                                    <th translate>Date</th>
-                                    <th translate>Name</th>
-                                    <th translate>Description</th>
-                                    <th style="width: 10%;" translate>Amount</th>
-                                    <th translate>Project</th>
-                                    <th></th>
-                                </tr>
-                                <tr ng:repeat="booking in bookings">
-                                    <td style="height: 50px;vertical-align: middle;">{{booking.booking_date_formatted}}</td>
-                                    <td style="height: 50px;vertical-align: middle;">{{booking.name}}</td>
-                                    <td style="height: 50px;vertical-align: middle;">{{booking.description}}</td>
-                                    <td style="height: 50px;vertical-align: middle;text-align:right;color:green;" ng:if="booking.amount >= 0">{{booking.amount_formatted}} €</td>
-                                    <td style="height: 50px;vertical-align: middle;text-align:right;color:red;" ng:if="booking.amount < 0">{{booking.amount_formatted}} €</td>
-                                    <td style="height: 50px;vertical-align: middle;">{{booking.project_name}}</td>
-                                    <td style="height: 50px;vertical-align: middle;text-align: right;">
-                                        <button type="button" class="btn btn-sm btn-success" ng:click="updateBooking(account.id, booking)" translate>Edit</button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th></th>
-                                    <th></th>
-                                    <th></th>
-                                    <th style="color:green;text-align:right;" ng:if="bookings_totalamount >= 0">{{bookings_totalamount_formatted}} €</th>
-                                    <th style="color:red;text-align:right;" ng:if="bookings_totalamount < 0">{{bookings_totalamount_formatted}} €</th>
-                                    <th></th>
-                                    <th></th>
-                                </tr>
-                            </table>
-                            <br />
-                            <br />
-                            <br />
+                        <div ng:show="booking.edit" style="border-top: 1px solid grey;margin-top: 10px;">
+                            PENIS
                         </div>
-                    </uib:tab>
-                </uib:tabset>
+                        <div ng:show="booking.edit" style="margin-top: 10px;">
+                            <button class="btn btn-sm btn-danger" ng:click="deleteBooking(booking)" title="{{'Delete' | translate}}"><i class="fa fa-trash"></i></button>
+                            <button class="btn btn-sm btn-success" style="float:right;margin-left: 5px;"  ng:click="updateBooking(booking)" title="{{'Save' | translate}}"><i class="fa fa-floppy-o"></i></button>
+                            <button class="btn btn-sm btn-danger" style="float:right;"  ng:click="booking.edit = false" title="{{'Discard' | translate}}"><i class="fa fa-ban"></i></button>
+                        </div>
+                    </div>
+                    <!-- <table class="table">
+                        <tr>
+                            <th translate>Date</th>
+                            <th translate>Name</th>
+                            <th translate>Description</th>
+                            <th style="width: 10%;" translate>Amount</th>
+                            <th translate>Project</th>
+                            <th></th>
+                        </tr>
+                        <tr ng:repeat="booking in bookings">
+                            <td style="height: 50px;vertical-align: middle;">{{booking.booking_date_formatted}}</td>
+                            <td style="height: 50px;vertical-align: middle;">{{booking.name}}</td>
+                            <td style="height: 50px;vertical-align: middle;">{{booking.description}}</td>
+                            <td style="height: 50px;vertical-align: middle;text-align:right;color:green;" ng:if="booking.amount >= 0">{{booking.amount_formatted}} €</td>
+                            <td style="height: 50px;vertical-align: middle;text-align:right;color:red;" ng:if="booking.amount < 0">{{booking.amount_formatted}} €</td>
+                            <td style="height: 50px;vertical-align: middle;">{{booking.project_name}}</td>
+                            <td style="height: 50px;vertical-align: middle;text-align: right;">
+                                <button type="button" class="btn btn-sm btn-success" ng:click="updateBooking(account.id, booking)" translate>Edit</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th style="color:green;text-align:right;" ng:if="bookings_totalamount >= 0">{{bookings_totalamount_formatted}} €</th>
+                            <th style="color:red;text-align:right;" ng:if="bookings_totalamount < 0">{{bookings_totalamount_formatted}} €</th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </table> -->
+                    <br />
+                    <br />
+                    <br />
+                </div>
                 
                 <floating-toolbar>
                     <button ng:click="addBooking(account.id)" class="btn" translate>Add booking</button>

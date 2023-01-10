@@ -14,10 +14,11 @@ angular.module('m4v.users').controller('M4VUsersIndexController', function($scop
             templateUrl : '/m4v_users:resources/partial/updateUser.modal.html',
             controller  : 'M4VUpdateUsersModalController',
             resolve: { user: function() { return user; } }
-        }).result.then(function(user, updatepw) {
-            if(updatepw) {
+        }).result.then(function(user) {
+            console.log(user.updatepw);
+            if(user.updatepw) {
                 $http.post('/api/m4v/users/update', {id: user.id, username: user.username, firstname: user.firstname, lastname: user.lastname, mail: user.mail, password: user.password}).then( (resp) => {
-                    notify.success(gettext('Saved successfully!'));
+                    notify.success(gettext('Password changed and saved successfully!'));
                     $scope.loadUser();
                 }, error => {
                     notify.error(gettext('Failed to save!'));
@@ -70,10 +71,10 @@ angular.module('m4v.users').controller('M4VUsersIndexController', function($scop
 angular.module('m4v.users').controller('M4VUpdateUsersModalController', function($scope, $uibModalInstance, user) {
     $scope.user = user;
     $scope.user.password = "";
-    $scope.updatepw = false;
+    $scope.user.updatepw = false;
 
     $scope.save = () => {
-        $uibModalInstance.close($scope.user, $scope.updatepw);
+        $uibModalInstance.close($scope.user);
     }
 
     $scope.close = () => {
