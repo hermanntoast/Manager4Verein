@@ -181,7 +181,7 @@ angular.module('m4v.finances').controller('M4v_financesBookingsIndexController',
     }
 
     $scope.filter = (row) => {
-        result = false;
+        let result = false;
         console.log(row);
         for (var value of ['name', 'description']) {
             if (row[value] != undefined) {

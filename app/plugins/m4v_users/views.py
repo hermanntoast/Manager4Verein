@@ -55,7 +55,7 @@ class Handler(HttpPlugin):
 
     @url(r'/api/m4v/users/delete')
     @endpoint(api=True)
-    def handle_api_m4v_users_add(self, http_context):
+    def handle_api_m4v_users_delete(self, http_context):
         if http_context.method == 'POST':
             id = http_context.json_body()['id']
             mysql_result = self.mysql.delete("m4v_users", "id = " + id)
